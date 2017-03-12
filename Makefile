@@ -9,4 +9,4 @@ bin/unit_tests: test/unit_tests.c $(UNIT_TEST_HEADERS) $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(SOURCES)
 
 test: bin/unit_tests
-	./bin/unit_tests
+	./bin/unit_tests -c

@@ -8,4 +8,4 @@ A collection of C utilities and data structures.
 
 `nu_unit`
 - A simple C unit-testing framework.
-- Also available via https://github.com/EvanKuhn/nu_unit
+- Copied from via https://github.com/EvanKuhn/nu_unit

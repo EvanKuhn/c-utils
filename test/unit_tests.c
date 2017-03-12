@@ -8,8 +8,8 @@ int main(int argc, char **argv) {
   nu_parse_cmdline(argc, argv);
 
   // Run test suites
-  nu_run_suite(test_suite__hash,      "hash");
-  nu_run_suite(test_suite__hash_iter, "hash_iter");
+  nu_run_suite(test_suite__hash);
+  nu_run_suite(test_suite__hash_iter);
 
   // Print results and return
   nu_print_summary();

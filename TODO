@@ -1,0 +1,7 @@
+TODO:
+[ ] Add tests for hash_t using nu_unit
+[ ] Finish TODO's in hash.h/c
+[ ] Update readme, changelog
+[ ] Pull in C code from https://github.com/EvanKuhn/scratch ?
+    - If so, delete that repo
+
