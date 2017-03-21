@@ -3,7 +3,7 @@ A collection of C utilities and data structures.
 
 **Contents:**
 
-`hash_t`
+`hash_t` and `hash_iter_t`
 - A hashtable implementation that wraps around uthash.
 
 `nu_unit`
