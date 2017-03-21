@@ -1,5 +1,9 @@
 #include "hash.h"
 
+//==============================================================================
+// Internal hash structures
+//==============================================================================
+
 // An entry in the hashtable
 typedef struct _entry_s {
     void* key;                // Pointer to key
@@ -68,11 +72,6 @@ void* hash_get(hash_t* this, void* key, size_t keysize)
   return entry ? entry->val : NULL;
 }
 
-size_t hash_size(hash_t* this)
-{
-  return HASH_COUNT(this->entries);
-}
-
 bool hash_del(hash_t* this, void* key, size_t keysize)
 {
   // Look for an existing entry
@@ -100,21 +99,70 @@ void hash_clear(hash_t* this)
   }
 }
 
-// Utilities for string-based keys
-void hash_set_str(hash_t* this, char* key, void* value)
+size_t hash_size(hash_t* this)
+{
+  return HASH_COUNT(this->entries);
+}
+
+void str_hash_set(hash_t* this, char* key, void* value)
 {
   hash_set(this, key, strlen(key), value);
 }
 
-void* hash_get_str(hash_t* this, char* key)
+void* str_hash_get(hash_t* this, char* key)
 {
   return hash_get(this, key, strlen(key));
 }
 
-
-bool hash_del_str(hash_t* this, char* key)
+bool str_hash_del(hash_t* this, char* key)
 {
   return hash_del(this, key, strlen(key));
+}
+
+int _key_cmp_str(void* a, void* b)
+{
+  char* key_a = ((_entry_t*)a)->key;
+  char* key_b = ((_entry_t*)b)->key;
+  return strcmp(key_a, key_b);
+}
+
+void str_hash_sort(hash_t* this)
+{
+  HASH_SORT(this->entries, _key_cmp_str);
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wint-to-void-pointer-cast"
+
+void int_hash_set(hash_t* this, int key, void* value)
+{
+  hash_set(this, (void*)key, sizeof(key), value);
+}
+
+void* int_hash_get(hash_t* this, int key)
+{
+  return hash_get(this, (void*)key, sizeof(key));
+}
+
+bool int_hash_del(hash_t* this, int key)
+{
+  return hash_del(this, (void*)key, sizeof(key));
+}
+
+#pragma clang diagnostic pop
+
+int _key_cmp_int(void* a, void* b)
+{
+  char* key_a = ((_entry_t*)a)->key;
+  char* key_b = ((_entry_t*)b)->key;
+  if (key_a < key_b) return -1;
+  if (key_a > key_b) return  1;
+  return 0;
+}
+
+void int_hash_sort(hash_t* this)
+{
+  HASH_SORT(this->entries, _key_cmp_int);
 }
 
 //==============================================================================
@@ -130,23 +178,59 @@ hash_iter_t hash_iter(hash_t* hash)
 
 void hash_iter_init(hash_iter_t* this, hash_t* hash)
 {
-  this->entry = hash->entries;
-  this->key = ((_entry_t*)this->entry)->key;
-  this->val = ((_entry_t*)this->entry)->val;
+  memset(this, 0, sizeof(hash_iter_t));
+  this->hash = hash;
+  hash_iter_rewind(this);
 }
 
 bool hash_iter_next(hash_iter_t* this)
 {
-  // Check for current entry
-  _entry_t* e = this->entry;
-  if (!e) return false;
+  _entry_t* next = this->next;
 
-  // Get next entry (could be null)
-  e = e->hh.next;
-  this->entry = e;
+  // If there's a next element, update the iterator
+  if (next) {
+    this->curr = next;
+    this->next = next->hh.next;
+    this->key  = next->key;
+    this->val  = next->val;
+    return true;
+  }
+  // No next element. Reset iterator to empty.
+  else {
+    this->curr = NULL;
+    this->next = NULL;
+    this->key  = NULL;
+    this->val  = NULL;
+    return false;
+  }
+}
 
-  // Update key and value
-  this->key = e ? e->key : NULL;
-  this->val = e ? e->val : NULL;
-  return true;
+bool hash_iter_has_entry(hash_iter_t* this)
+{
+  return (this->curr != NULL);
+}
+
+void hash_iter_rewind(hash_iter_t* this)
+{
+  if (this->hash->entries) {
+    this->curr = this->hash->entries;
+    this->next = this->hash->entries->hh.next;
+    this->key  = this->hash->entries->key;
+    this->val  = this->hash->entries->val;
+  }
+}
+
+void hash_iter_delete(hash_iter_t* this)
+{
+  _entry_t* curr = this->curr;
+
+  if (curr) {
+    HASH_DEL(this->hash->entries, curr);
+    if (this->hash->key_free_func) this->hash->key_free_func(curr->key);
+    if (this->hash->val_free_func) this->hash->val_free_func(curr->val);
+    free(curr);
+    this->curr = NULL;
+    this->key  = NULL;
+    this->val  = NULL;
+  }
 }
