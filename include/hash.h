@@ -40,6 +40,13 @@ size_t hash_size(hash_t* this);
 void  hash_set_str(hash_t* this, char* key, void* value);
 void* hash_get_str(hash_t* this, char* key);
 bool  hash_del_str(hash_t* this, char* key);
+void  hash_sort_str(hash_t* this);
+
+// Utilities for integer-based keys
+void  hash_set_int(hash_t* this, int key, void* value);
+void* hash_get_int(hash_t* this, int key);
+bool  hash_del_int(hash_t* this, int key);
+void  hash_sort_int(hash_t* this);
 
 //==============================================================================
 // Hash table iterator struct. Use it to iterate over a hash_t struct. Example:
@@ -72,4 +79,3 @@ void hash_iter_init(hash_iter_t* this, hash_t* hash);
 bool hash_iter_next(hash_iter_t* this);
 
 //TODO: void hash_iter_delete: delete current entry
-//TODO: void hash_sort(sort_func): sort the hash by key

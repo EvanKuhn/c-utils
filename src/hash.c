@@ -1,5 +1,9 @@
 #include "hash.h"
 
+//==============================================================================
+// Internal hash structures
+//==============================================================================
+
 // An entry in the hashtable
 typedef struct _entry_s {
     void* key;                // Pointer to key
@@ -68,11 +72,6 @@ void* hash_get(hash_t* this, void* key, size_t keysize)
   return entry ? entry->val : NULL;
 }
 
-size_t hash_size(hash_t* this)
-{
-  return HASH_COUNT(this->entries);
-}
-
 bool hash_del(hash_t* this, void* key, size_t keysize)
 {
   // Look for an existing entry
@@ -100,7 +99,11 @@ void hash_clear(hash_t* this)
   }
 }
 
-// Utilities for string-based keys
+size_t hash_size(hash_t* this)
+{
+  return HASH_COUNT(this->entries);
+}
+
 void hash_set_str(hash_t* this, char* key, void* value)
 {
   hash_set(this, key, strlen(key), value);
@@ -111,10 +114,55 @@ void* hash_get_str(hash_t* this, char* key)
   return hash_get(this, key, strlen(key));
 }
 
-
 bool hash_del_str(hash_t* this, char* key)
 {
   return hash_del(this, key, strlen(key));
+}
+
+int _key_cmp_str(void* a, void* b)
+{
+  char* key_a = ((_entry_t*)a)->key;
+  char* key_b = ((_entry_t*)b)->key;
+  return strcmp(key_a, key_b);
+}
+
+void hash_sort_str(hash_t* this)
+{
+  HASH_SORT(this->entries, _key_cmp_str);
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wint-to-void-pointer-cast"
+
+void hash_set_int(hash_t* this, int key, void* value)
+{
+  hash_set(this, (void*)key, sizeof(key), value);
+}
+
+void* hash_get_int(hash_t* this, int key)
+{
+  return hash_get(this, (void*)key, sizeof(key));
+}
+
+bool hash_del_int(hash_t* this, int key)
+{
+  return hash_del(this, (void*)key, sizeof(key));
+}
+
+#pragma clang diagnostic pop
+
+int _key_cmp_int(void* a, void* b)
+{
+  char* key_a = ((_entry_t*)a)->key;
+  char* key_b = ((_entry_t*)b)->key;
+  if (key_a < key_b) return -1;
+  if (key_a > key_b) return  1;
+  return 0;
+}
+
+void hash_sort_int(hash_t* this)
+{
+  HASH_SORT(this->entries, _key_cmp_int);
 }
 
 //==============================================================================
@@ -131,8 +179,8 @@ hash_iter_t hash_iter(hash_t* hash)
 void hash_iter_init(hash_iter_t* this, hash_t* hash)
 {
   this->entry = hash->entries;
-  this->key = ((_entry_t*)this->entry)->key;
-  this->val = ((_entry_t*)this->entry)->val;
+  this->key = hash->entries ? ((_entry_t*)this->entry)->key : NULL;
+  this->val = hash->entries ? ((_entry_t*)this->entry)->val : NULL;
 }
 
 bool hash_iter_next(hash_iter_t* this)
@@ -148,5 +196,5 @@ bool hash_iter_next(hash_iter_t* this)
   // Update key and value
   this->key = e ? e->key : NULL;
   this->val = e ? e->val : NULL;
-  return true;
+  return (e != NULL);
 }
