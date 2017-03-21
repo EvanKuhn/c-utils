@@ -178,23 +178,59 @@ hash_iter_t hash_iter(hash_t* hash)
 
 void hash_iter_init(hash_iter_t* this, hash_t* hash)
 {
-  this->entry = hash->entries;
-  this->key = hash->entries ? ((_entry_t*)this->entry)->key : NULL;
-  this->val = hash->entries ? ((_entry_t*)this->entry)->val : NULL;
+  memset(this, 0, sizeof(hash_iter_t));
+  this->hash = hash;
+  hash_iter_rewind(this);
 }
 
 bool hash_iter_next(hash_iter_t* this)
 {
-  // Check for current entry
-  _entry_t* e = this->entry;
-  if (!e) return false;
+  _entry_t* next = this->next;
 
-  // Get next entry (could be null)
-  e = e->hh.next;
-  this->entry = e;
+  // If there's a next element, update the iterator
+  if (next) {
+    this->curr = next;
+    this->next = next->hh.next;
+    this->key  = next->key;
+    this->val  = next->val;
+    return true;
+  }
+  // No next element. Reset iterator to empty.
+  else {
+    this->curr = NULL;
+    this->next = NULL;
+    this->key  = NULL;
+    this->val  = NULL;
+    return false;
+  }
+}
 
-  // Update key and value
-  this->key = e ? e->key : NULL;
-  this->val = e ? e->val : NULL;
-  return (e != NULL);
+bool hash_iter_has_entry(hash_iter_t* this)
+{
+  return (this->curr != NULL);
+}
+
+void hash_iter_rewind(hash_iter_t* this)
+{
+  if (this->hash->entries) {
+    this->curr = this->hash->entries;
+    this->next = this->hash->entries->hh.next;
+    this->key  = this->hash->entries->key;
+    this->val  = this->hash->entries->val;
+  }
+}
+
+void hash_iter_delete(hash_iter_t* this)
+{
+  _entry_t* curr = this->curr;
+
+  if (curr) {
+    HASH_DEL(this->hash->entries, curr);
+    if (this->hash->key_free_func) this->hash->key_free_func(curr->key);
+    if (this->hash->val_free_func) this->hash->val_free_func(curr->val);
+    free(curr);
+    this->curr = NULL;
+    this->key  = NULL;
+    this->val  = NULL;
+  }
 }

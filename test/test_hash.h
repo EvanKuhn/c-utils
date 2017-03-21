@@ -207,7 +207,9 @@ void test_suite__hash() {
 void test__empty_hash_iter() {
   hash_t* h = hash_new(NULL, NULL);
   hash_iter_t iter = hash_iter(h);
-  nu_check_null(iter.entry);
+  nu_check_not_null(iter.hash);
+  nu_check_null(iter.curr);
+  nu_check_null(iter.next);
   nu_check_null(iter.key);
   nu_check_null(iter.val);
   hash_free(h);
@@ -216,7 +218,9 @@ void test__empty_hash_iter() {
 void test__hash_iter() {
   hash_t* h = _new_test_hash();
   hash_iter_t iter = hash_iter(h);
-  nu_check_not_null(iter.entry);
+  nu_check_not_null(iter.hash);
+  nu_check_not_null(iter.curr);
+  nu_check_not_null(iter.next);
   nu_check_not_null(iter.key);
   nu_check_not_null(iter.val);
   hash_free(h);
@@ -226,7 +230,9 @@ void test__hash_iter_init() {
   hash_t* h = _new_test_hash();
   hash_iter_t iter;
   hash_iter_init(&iter, h);
-  nu_check_not_null(iter.entry);
+  nu_check_not_null(iter.hash);
+  nu_check_not_null(iter.curr);
+  nu_check_not_null(iter.next);
   nu_check_not_null(iter.key);
   nu_check_not_null(iter.val);
   hash_free(h);
@@ -247,10 +253,70 @@ void test__hash_iter_next() {
   hash_free(h);
 }
 
+void test__hash_iter_has_entry() {
+  hash_t* h = _new_test_hash();
+  hash_iter_t iter;
+  hash_iter_init(&iter, h);
+  nu_check_true(hash_iter_has_entry(&iter));
+  hash_iter_next(&iter);
+  nu_check_true(hash_iter_has_entry(&iter));
+  hash_iter_next(&iter);
+  nu_check_true(hash_iter_has_entry(&iter));
+  hash_iter_next(&iter);
+  nu_check_false(hash_iter_has_entry(&iter));
+  hash_free(h);
+}
+
+void test__hash_iter_rewind() {
+  hash_t* h = _new_test_hash();
+  hash_iter_t iter = hash_iter(h);
+  nu_check_str_eq((char*)iter.key, "foo");
+  nu_check_true(hash_iter_next(&iter));
+  nu_check_str_eq((char*)iter.key, "bar");
+  hash_iter_rewind(&iter);
+  nu_check_str_eq((char*)iter.key, "foo");
+  hash_free(h);
+}
+
 void test__hash_iter_delete() {
   hash_t* h = _new_test_hash();
   hash_iter_t iter = hash_iter(h);
-  nu_not_implemented(); // TODO
+
+  // Delete the 2nd entry
+  nu_check_str_eq((char*)iter.key, "foo");
+  nu_check_true(hash_iter_next(&iter));
+
+  nu_check_str_eq((char*)iter.key, "bar");
+  hash_iter_delete(&iter);
+  nu_check_null(iter.curr);
+  nu_check_not_null(iter.next);
+  nu_check_null(iter.key);
+  nu_check_null(iter.val);
+  nu_check_true(hash_iter_next(&iter));
+
+  nu_check_str_eq((char*)iter.key, "xyz");
+  nu_check_false(hash_iter_next(&iter));
+
+  // Rewind and check that entries 1 and 3 still exist
+  hash_iter_rewind(&iter);
+
+  nu_check_str_eq((char*)iter.key, "foo");
+  nu_check_true(hash_iter_next(&iter));
+  nu_check_str_eq((char*)iter.key, "xyz");
+  nu_check_false(hash_iter_next(&iter));
+
+  // Rewind and delete all remaining entries
+  hash_iter_rewind(&iter);
+
+  hash_iter_delete(&iter);
+  nu_check_true(hash_iter_next(&iter));
+  hash_iter_delete(&iter);
+  nu_check_false(hash_iter_next(&iter));
+
+  // Rewind and check stuff
+  hash_iter_rewind(&iter);
+  nu_check_false(hash_iter_has_entry(&iter));
+
   hash_free(h);
 }
 
@@ -259,5 +325,7 @@ void test_suite__hash_iter() {
   nu_run_test(test__hash_iter);
   nu_run_test(test__hash_iter_init);
   nu_run_test(test__hash_iter_next);
+  nu_run_test(test__hash_iter_has_entry);
+  nu_run_test(test__hash_iter_rewind);
   nu_run_test(test__hash_iter_delete);
 }

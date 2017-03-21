@@ -51,18 +51,28 @@ void  int_hash_sort(hash_t* this);
 //==============================================================================
 // Hash table iterator struct. Use it to iterate over a hash_t struct. Example:
 //
-//     hash_t* hash = hash_new(NULL, NULL);
-//     ...
-//     for(hash_iter_t iter = hash_iter(hash); iter->entry; hash_iter_next(iter)) {
-//       printf("key '%s' has value '%s'\n", (char*)iter->key, (char*)iter->val);
-//     }
+//    // Method 1: for-loop
+//    hash_iter_t iter;
+//    for (iter = hash_iter(hash); hash_iter_has_entry(&iter); hash_iter_next(&iter))
+//    {
+//      printf("key '%s' has value '%s'\n", (char*)iter->key, (char*)iter->val);
+//    }
+//
+//    // Method 2: do-while loop
+//    hash_iter_t iter = hash_iter(hash);
+//    do
+//    {
+//      printf("key '%s' has value '%s'\n", (char*)iter->key, (char*)iter->val);
+//    } while (hash_iter_next(&iter);
 //
 // To check if the iterator is done (ie. no more values are available), you can
 // check if iter->entry is null.
 //==============================================================================
 
 struct hash_iter_s {
-  void* entry;  // Opaque pointer to current hash entry. Null if no more entries.
+  hash_t* hash;
+  void* curr;   // Opaque pointers to current hash entry
+  void* next;   // Opaque pointers to next hash entry
   void* key;    // Current key
   void* val;    // Current value
 };
@@ -78,4 +88,13 @@ void hash_iter_init(hash_iter_t* this, hash_t* hash);
 // false if no more entries exist.
 bool hash_iter_next(hash_iter_t* this);
 
-//TODO: void hash_iter_delete: delete current entry
+// Return true if the iterator is currently pointing to an entry
+bool hash_iter_has_entry(hash_iter_t* this);
+
+// Rewind the iterator to the first entry in the hash
+void hash_iter_rewind(hash_iter_t* this);
+
+// Delete the current key-value pair.
+// - Sets the 'curr', 'key' and 'val' pointers to null.
+// - Call hash_iter_next to go to the next entry, if available.
+void hash_iter_delete(hash_iter_t* this);
