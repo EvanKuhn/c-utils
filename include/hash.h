@@ -37,16 +37,16 @@ void hash_clear(hash_t* this);
 size_t hash_size(hash_t* this);
 
 // Utilities for string-based keys
-void  hash_set_str(hash_t* this, char* key, void* value);
-void* hash_get_str(hash_t* this, char* key);
-bool  hash_del_str(hash_t* this, char* key);
-void  hash_sort_str(hash_t* this);
+void  str_hash_set(hash_t* this, char* key, void* value);
+void* str_hash_get(hash_t* this, char* key);
+bool  str_hash_del(hash_t* this, char* key);
+void  str_hash_sort(hash_t* this);
 
 // Utilities for integer-based keys
-void  hash_set_int(hash_t* this, int key, void* value);
-void* hash_get_int(hash_t* this, int key);
-bool  hash_del_int(hash_t* this, int key);
-void  hash_sort_int(hash_t* this);
+void  int_hash_set(hash_t* this, int key, void* value);
+void* int_hash_get(hash_t* this, int key);
+bool  int_hash_del(hash_t* this, int key);
+void  int_hash_sort(hash_t* this);
 
 //==============================================================================
 // Hash table iterator struct. Use it to iterate over a hash_t struct. Example:

@@ -12,9 +12,9 @@ void _hash_val_free(void* k) { ++hash_val_free_count; }
 
 hash_t* _new_test_hash() {
   hash_t* h = hash_new(NULL, NULL);
-  hash_set_str(h, "foo", "FOO");
-  hash_set_str(h, "bar", "BAR");
-  hash_set_str(h, "xyz", "XYZ");
+  str_hash_set(h, "foo", "FOO");
+  str_hash_set(h, "bar", "BAR");
+  str_hash_set(h, "xyz", "XYZ");
   return h;
 }
 
@@ -30,8 +30,8 @@ void test__hash_new() {
 
 void test__hash_free() {
   hash_t* h = hash_new(_hash_key_free, _hash_val_free);
-  hash_set_str(h, "foo", "FOO");
-  hash_set_str(h, "bar", "BAR");
+  str_hash_set(h, "foo", "FOO");
+  str_hash_set(h, "bar", "BAR");
   hash_free(h);
   nu_check_int_eq(hash_key_free_count, 2);
   nu_check_int_eq(hash_val_free_count, 2);
@@ -50,71 +50,65 @@ void test__hash_set_get_del() {
   hash_free(h);
 }
 
-void test__hash_del() {
-  hash_t* h = hash_new(NULL, NULL);
-  nu_not_implemented();
-  hash_free(h);
-}
-
 void test__hash_clear() {
   hash_t* h = hash_new(NULL, NULL);
-  hash_set_str(h, "foo", "FOO");
+  str_hash_set(h, "foo", "FOO");
   nu_check_int_eq(hash_size(h), 1);
-  nu_check_not_null(hash_get_str(h, "foo"));
+  nu_check_not_null(str_hash_get(h, "foo"));
   hash_clear(h);
   nu_check_int_eq(hash_size(h), 0);
-  nu_check_null(hash_get_str(h, "foo"));
+  nu_check_null(str_hash_get(h, "foo"));
   hash_free(h);
 }
 
 void test__hash_size() {
   hash_t* h = hash_new(NULL, NULL);
   nu_check_int_eq(hash_size(h), 0);
-  hash_set_str(h, "foo", "FOO");
+  str_hash_set(h, "foo", "FOO");
   nu_check_int_eq(hash_size(h), 1);
-  hash_set_str(h, "bar", "BAR");
+  str_hash_set(h, "bar", "BAR");
   nu_check_int_eq(hash_size(h), 2);
   hash_free(h);
 }
 
 void test__str_hash_set_get_del() {
   hash_t* h = hash_new(NULL, NULL);
-  hash_set_str(h, "foo", "FOO");
-  hash_set_str(h, "bar", "BAR");
-  nu_check_str_eq(hash_get_str(h, "foo"), "FOO");
-  nu_check_str_eq(hash_get_str(h, "bar"), "BAR");
-  nu_check_null(hash_get_str(h, "xyz"));
+  str_hash_set(h, "foo", "FOO");
+  str_hash_set(h, "bar", "BAR");
+  nu_check_str_eq(str_hash_get(h, "foo"), "FOO");
+  nu_check_str_eq(str_hash_get(h, "bar"), "BAR");
+  nu_check_null(str_hash_get(h, "xyz"));
   nu_check_int_eq(hash_size(h), 2);
-  nu_check_true(hash_del_str(h, "foo"));
-  nu_check_null(hash_get_str(h, "foo"));
+  nu_check_true(str_hash_del(h, "foo"));
+  nu_check_null(str_hash_get(h, "foo"));
   nu_check_int_eq(hash_size(h), 1);
-  nu_check_false(hash_del_str(h, "foo"));
+  nu_check_false(str_hash_del(h, "foo"));
   hash_free(h);
 }
 
 void test__int_hash_set_get_del() {
   hash_t* h = hash_new(NULL, NULL);
-  hash_set_int(h, 1, "one");
-  hash_set_int(h, 2, "two");
-  hash_set_int(h, -3, "minus three");
-  nu_check_str_eq(hash_get_int(h, 1), "one");
-  nu_check_str_eq(hash_get_int(h, 2), "two");
-  nu_check_str_eq(hash_get_int(h, -3), "minus three");
+  int_hash_set(h, 1, "one");
+  int_hash_set(h, 2, "two");
+  int_hash_set(h, -3, "minus three");
+  nu_check_str_eq(int_hash_get(h, 1), "one");
+  nu_check_str_eq(int_hash_get(h, 2), "two");
+  nu_check_str_eq(int_hash_get(h, -3), "minus three");
   nu_check_int_eq(hash_size(h), 3);
-  nu_check_true(hash_del_int(h, 1));
-  nu_check_null(hash_get_int(h, 1));
+  nu_check_true(int_hash_del(h, 1));
+  nu_check_null(int_hash_get(h, 1));
   nu_check_int_eq(hash_size(h), 2);
-  nu_check_false(hash_del_int(h, 1));
+  nu_check_false(int_hash_del(h, 1));
   hash_free(h);
 }
 
-void test__hash_sort_str() {
+void test__str_hash_sort() {
   hash_iter_t iter;
   hash_t* h = hash_new(NULL, NULL);
-  hash_set_str(h, "ccc", "C");
-  hash_set_str(h, "ddd", "D");
-  hash_set_str(h, "aaa", "A");
-  hash_set_str(h, "bbb", "B");
+  str_hash_set(h, "ccc", "C");
+  str_hash_set(h, "ddd", "D");
+  str_hash_set(h, "aaa", "A");
+  str_hash_set(h, "bbb", "B");
 
   // Check existing order
   iter = hash_iter(h);
@@ -131,7 +125,7 @@ void test__hash_sort_str() {
   nu_check_str_eq((char*)iter.val, "B");
   nu_check_false(hash_iter_next(&iter));
 
-  hash_sort_str(h);
+  str_hash_sort(h);
 
   // Check sorted order
   iter = hash_iter(h);
@@ -151,13 +145,13 @@ void test__hash_sort_str() {
   hash_free(h);
 }
 
-void test__hash_sort_int() {
+void test__int_hash_sort() {
   hash_iter_t iter;
   hash_t* h = hash_new(NULL, NULL);
-  hash_set_int(h, 3, "C");
-  hash_set_int(h, 4, "D");
-  hash_set_int(h, 1, "A");
-  hash_set_int(h, 2, "B");
+  int_hash_set(h, 3, "C");
+  int_hash_set(h, 4, "D");
+  int_hash_set(h, 1, "A");
+  int_hash_set(h, 2, "B");
 
   // Check existing order
   iter = hash_iter(h);
@@ -174,7 +168,7 @@ void test__hash_sort_int() {
   nu_check_str_eq((char*)iter.val, "B");
   nu_check_false(hash_iter_next(&iter));
 
-  hash_sort_str(h);
+  int_hash_sort(h);
 
   // Check sorted order
   iter = hash_iter(h);
@@ -198,11 +192,12 @@ void test_suite__hash() {
   nu_run_test(test__hash_new);
   nu_run_test(test__hash_free);
   nu_run_test(test__hash_set_get_del);
+  nu_run_test(test__hash_clear);
+  nu_run_test(test__hash_size);
   nu_run_test(test__str_hash_set_get_del);
   nu_run_test(test__int_hash_set_get_del);
-  nu_run_test(test__hash_clear);
-  nu_run_test(test__hash_sort_str);
-  nu_run_test(test__hash_sort_int);
+  nu_run_test(test__str_hash_sort);
+  nu_run_test(test__int_hash_sort);
 }
 
 //==============================================================================
