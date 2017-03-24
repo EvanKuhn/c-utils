@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=gnu99 -Iinclude
+CFLAGS=-Wall -std=gnu99 -Iinclude
 
 SOURCES = $(shell find src -name '*.c')
 HEADERS = $(shell find include -name '*.h')
