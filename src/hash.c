@@ -1,4 +1,4 @@
-#include "hash.h"
+#include "c-utils/hash.h"
 
 //==============================================================================
 // Internal hash structures
