@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "uthash.h"
 
 //==============================================================================
@@ -47,6 +48,10 @@ void  int_hash_set(hash_t* this, int key, void* value);
 void* int_hash_get(hash_t* this, int key);
 bool  int_hash_del(hash_t* this, int key);
 void  int_hash_sort(hash_t* this);
+
+// Macros for converting between int and void* without producing warnings
+#define INT_TO_VOID_PTR(i) (void*)(uintptr_t)(i)
+#define VOID_PTR_TO_INT(p) (int)(uintptr_t)(p)
 
 //==============================================================================
 // Hash table iterator struct. Use it to iterate over a hash_t struct. Example:

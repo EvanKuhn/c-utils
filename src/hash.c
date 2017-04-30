@@ -131,25 +131,20 @@ void str_hash_sort(hash_t* this)
   HASH_SORT(this->entries, _key_cmp_str);
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wint-to-void-pointer-cast"
-
 void int_hash_set(hash_t* this, int key, void* value)
 {
-  hash_set(this, (void*)key, sizeof(key), value);
+  hash_set(this, INT_TO_VOID_PTR(key), sizeof(key), value);
 }
 
 void* int_hash_get(hash_t* this, int key)
 {
-  return hash_get(this, (void*)key, sizeof(key));
+  return hash_get(this, INT_TO_VOID_PTR(key), sizeof(key));
 }
 
 bool int_hash_del(hash_t* this, int key)
 {
-  return hash_del(this, (void*)key, sizeof(key));
+  return hash_del(this, INT_TO_VOID_PTR(key), sizeof(key));
 }
-
-#pragma clang diagnostic pop
 
 int _key_cmp_int(void* a, void* b)
 {

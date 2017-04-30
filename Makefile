@@ -1,4 +1,3 @@
-CC=gcc
 CFLAGS=-Wall -std=gnu99 -Iinclude
 
 SOURCES = $(shell find src -name '*.c')

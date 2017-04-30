@@ -155,16 +155,16 @@ void test__int_hash_sort() {
 
   // Check existing order
   iter = hash_iter(h);
-  nu_check_int_eq((int)iter.key, 3);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 3);
   nu_check_str_eq((char*)iter.val, "C");
   nu_check_true(hash_iter_next(&iter));
-  nu_check_int_eq((int)iter.key, 4);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 4);
   nu_check_str_eq((char*)iter.val, "D");
   nu_check_true(hash_iter_next(&iter));
-  nu_check_int_eq((int)iter.key, 1);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 1);
   nu_check_str_eq((char*)iter.val, "A");
   nu_check_true(hash_iter_next(&iter));
-  nu_check_int_eq((int)iter.key, 2);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 2);
   nu_check_str_eq((char*)iter.val, "B");
   nu_check_false(hash_iter_next(&iter));
 
@@ -172,16 +172,16 @@ void test__int_hash_sort() {
 
   // Check sorted order
   iter = hash_iter(h);
-  nu_check_int_eq((int)iter.key, 1);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 1);
   nu_check_str_eq((char*)iter.val, "A");
   nu_check_true(hash_iter_next(&iter));
-  nu_check_int_eq((int)iter.key, 2);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 2);
   nu_check_str_eq((char*)iter.val, "B");
   nu_check_true(hash_iter_next(&iter));
-  nu_check_int_eq((int)iter.key, 3);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 3);
   nu_check_str_eq((char*)iter.val, "C");
   nu_check_true(hash_iter_next(&iter));
-  nu_check_int_eq((int)iter.key, 4);
+  nu_check_int_eq(VOID_PTR_TO_INT(iter.key), 4);
   nu_check_str_eq((char*)iter.val, "D");
   nu_check_false(hash_iter_next(&iter));
 
